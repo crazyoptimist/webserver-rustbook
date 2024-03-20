@@ -26,13 +26,27 @@ fn handle_connection(mut stream: TcpStream) {
     //
     // ex: HTTP/1.1 200 OK\r\n\r\n
 
-    let contents = fs::read_to_string("index.html").unwrap();
+    let method_get = b"GET / HTTP/1.1\r\n";
 
-    let response = format!(
-        "HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}",
-        contents.len(),
-        contents
-    );
-    stream.write(response.as_bytes()).unwrap();
-    stream.flush().unwrap();
+    if buffer.starts_with(method_get) {
+        let contents = fs::read_to_string("index.html").unwrap();
+
+        let response = format!(
+            "HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}",
+            contents.len(),
+            contents
+        );
+        stream.write(response.as_bytes()).unwrap();
+        stream.flush().unwrap();
+    } else {
+        let contents = fs::read_to_string("404.html").unwrap();
+
+        let response = format!(
+            "HTTP/1.1 404 NOT FOUND\r\nContent-Length: {}\r\n\r\n{}",
+            contents.len(),
+            contents
+        );
+        stream.write(response.as_bytes()).unwrap();
+        stream.flush().unwrap();
+    }
 }
