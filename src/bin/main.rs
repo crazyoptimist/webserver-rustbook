@@ -2,14 +2,19 @@ use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::time::Duration;
 use std::{fs, thread};
+use webserver_rustbook::ThreadPool;
 
 fn main() {
     let listener = TcpListener::bind("0.0.0.0:8080").unwrap();
 
+    let pool = ThreadPool::new(4);
+
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
-        handle_connection(stream);
+        pool.execute(|| {
+            handle_connection(stream);
+        });
     }
 }
 
